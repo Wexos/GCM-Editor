@@ -1,2 +1,2 @@
 # GCM-Editor
-Exports and replace files inside GameCube disc files (GCM .
+Editor for Windows which can export and replace files inside GameCube disc files (GCM).

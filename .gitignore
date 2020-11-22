@@ -1,0 +1,10 @@
+# Project
+/Projects/*/bin
+/Projects/*/obj
+
+# Visual studio
+.vs
+*.csproj.user
+*.vcxproj.user
+[Dd]ebug
+[Rr]elease
