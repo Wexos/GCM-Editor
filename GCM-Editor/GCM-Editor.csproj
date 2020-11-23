@@ -62,6 +62,8 @@
     <Compile Include="IO\EndianBinaryReader.cs" />
     <Compile Include="IO\EndianBinaryWriter.cs" />
     <Compile Include="IO\WrongMagicException.cs" />
+    <Compile Include="Nodes\FileNode.cs" />
+    <Compile Include="Nodes\FolderNode.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
