@@ -63,7 +63,10 @@
     <Compile Include="IO\EndianBinaryWriter.cs" />
     <Compile Include="IO\WrongMagicException.cs" />
     <Compile Include="Nodes\FileNode.cs" />
+    <Compile Include="Nodes\FileProperty.cs" />
     <Compile Include="Nodes\FolderNode.cs" />
+    <Compile Include="Nodes\FolderProperty.cs" />
+    <Compile Include="Nodes\GCMNode.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -91,6 +94,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Folder.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CommonFile.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Archive.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

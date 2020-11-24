@@ -6,12 +6,15 @@ namespace Editor.Nodes
 {
     public class FolderNode : TreeNode
     {
-        private DirectoryEntry Entry;
+        public DirectoryEntry Entry { get; set; }
 
         public FolderNode(DirectoryEntry Entry)
         {
             this.Entry = Entry;
+
             Text = Entry.Name;
+            ImageIndex = 1;
+            SelectedImageIndex = 1;
         }
 
         [Category("Folder")]
