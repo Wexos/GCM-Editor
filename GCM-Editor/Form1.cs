@@ -43,8 +43,12 @@ namespace Editor
             GCMStream = File.Open(o.FileName, FileMode.Open, FileAccess.ReadWrite);
             GCM = new GCM(GCMStream);
 
+            GCMNode Root = GCM.CreateTreeNode(o.FileName);
+
             treeView1.Nodes.Clear();
-            treeView1.Nodes.Add(GCM.CreateTreeNode(o.FileName));
+            treeView1.Nodes.Add(Root);
+
+            SetContextMenuStrip(Root);
         }
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -85,6 +89,100 @@ namespace Editor
             if (e.Button == MouseButtons.Right)
             {
                 treeView1.SelectedNode = e.Node;
+            }
+        }
+
+        private void exportFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FileNode Node = (FileNode)treeView1.SelectedNode;
+
+            SaveFileDialog s = new SaveFileDialog()
+            {
+                Filter = Node.GetFileFilter(),
+                FileName = Node.Entry.Name
+            };
+
+            if (s.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            using (FileStream Output = File.Open(s.FileName, FileMode.Create, FileAccess.Write))
+            {
+                GCM.ExportFile(Node.Entry, GCMStream, Output);
+            }
+        }
+        private void replaceFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            FileNode Node = (FileNode)treeView1.SelectedNode;
+
+            OpenFileDialog o = new OpenFileDialog()
+            {
+                Filter = Node.GetFileFilter(),
+                FileName = Node.Entry.Name
+            };
+
+            if (o.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            using (FileStream Input = File.Open(o.FileName, FileMode.Open, FileAccess.Read))
+            {
+
+            }
+        }
+
+        private void exportFolderToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            FolderBrowserDialog f = new FolderBrowserDialog();
+
+            if (f.ShowDialog() != DialogResult.OK)
+            {
+                return;
+            }
+
+            if (treeView1.SelectedNode is GCMNode GCMNode)
+            {
+                for (int i = 0; i < GCMNode.Nodes.Count; i++)
+                {
+                    if (GCMNode.Nodes[i] is FolderNode FolderNode)
+                    {
+                        GCM.ExportDirectory(FolderNode, GCMStream, Path.Combine(f.SelectedPath, FolderNode.Entry.Name));
+                    }
+                    else if (GCMNode.Nodes[i] is FileNode FileNode)
+                    {
+                        using (FileStream Output = File.Open(Path.Combine(f.SelectedPath, FileNode.Entry.Name), FileMode.Create, FileAccess.Write))
+                        {
+                            GCM.ExportFile(FileNode.Entry, GCMStream, Output);
+                        }
+                    }
+                }
+            }
+            else if (treeView1.SelectedNode is FolderNode FolderNode)
+            {
+                GCM.ExportDirectory(FolderNode, GCMStream, f.SelectedPath);
+            }
+        }
+
+        private void SetContextMenuStrip(TreeNode t)
+        {
+            switch (t)
+            {
+                case GCMNode GCM:
+                case FolderNode FolderNode:
+                    t.ContextMenuStrip = cmsFolder;
+                    break;
+                case FileNode FileNode:
+                    t.ContextMenuStrip = cmsFile;
+                    break;
+                default:
+                    throw new Exception();
+            }
+
+            for (int i = 0; i < t.Nodes.Count; i++)
+            {
+                SetContextMenuStrip(t.Nodes[i]);
             }
         }
     }

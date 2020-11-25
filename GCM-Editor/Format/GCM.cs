@@ -14,7 +14,7 @@ namespace Editor.Format
         public List<DirectoryEntry> Entries { get; set; }
 
         public const uint FileSize = 0x57058000;
-        public const uint FileAlignment = 0x80;
+        public const uint FileAlignment = 4;
 
         public GCM(Stream Stream)
         {
@@ -44,7 +44,7 @@ namespace Editor.Format
             }
         }
 
-        public TreeNode CreateTreeNode(string FileName)
+        public GCMNode CreateTreeNode(string FileName)
         {
             GCMNode Root = new GCMNode(this, FileName);
 
@@ -75,31 +75,168 @@ namespace Editor.Format
             }
         }
 
-        public long AvailableSizeOfFile(DirectoryEntry File, Stream GCMStream)
+        public byte[] ReadFile(DirectoryEntry File, Stream GCMStream)
         {
-            long Size = long.MaxValue;
-            bool IsLastFile = true;
+            byte[] Data = new byte[File.FileSize];
+
+            GCMStream.Position = File.FileOffset;
+            GCMStream.Read(Data, 0, Data.Length);
+
+            return Data;
+        }
+
+        public void ExportFile(DirectoryEntry File, Stream GCMStream, Stream Output)
+        {
+            byte[] Data = ReadFile(File, GCMStream);
+            Output.Write(Data, 0, Data.Length);
+        }
+        public void ReplaceFile(DirectoryEntry File, Stream GCMStream, byte[] FileData)
+        {
+
+        }
+
+        public void ExportDirectory(FolderNode Folder, Stream GCMStream, string OutputFolder)
+        {
+            if (!Directory.Exists(OutputFolder))
+            {
+                Directory.CreateDirectory(OutputFolder);
+            }
+
+            for (int i = 0; i < Folder.Nodes.Count; i++)
+            {
+                if (Folder.Nodes[i] is FolderNode FolderNode)
+                {
+                    ExportDirectory(FolderNode, GCMStream, Path.Combine(OutputFolder, FolderNode.Entry.Name));
+                }
+                else if (Folder.Nodes[i] is FileNode FileNode)
+                {
+                    using (FileStream Output = File.Open(Path.Combine(OutputFolder, FileNode.Entry.Name), FileMode.Create, FileAccess.Write))
+                    {
+                        ExportFile(FileNode.Entry, GCMStream, Output);
+                    }
+                }
+            }
+        }
+
+        public long GetNewOffsetOfFileData(DirectoryEntry File, Stream GCMStream, long NewFileSize)
+        {
+            //if (NewFileSize <= File.FileSize)
+            //{
+            //    return File.FileOffset;
+            //}
+
+            // First check if there is space between the file and the next one
+            long NextOffset = long.MaxValue;
 
             for (int i = 0; i < Entries.Count; i++)
             {
-                if (!Entries[i].IsDirectory && Entries[i] != File && Entries[i].FileOffset >= File.FileOffset)
+                if (Entries[i].IsDirectory || File == Entries[i] || Entries[i].FileSize == 0)
                 {
-                    if (File.FileOffset == Entries[i].FileOffset)
-                    {
-                        // Special case which is currently not handled
-                        throw new NotImplementedException();
-                    }
+                    continue;
+                }
 
-                    IsLastFile = false;
+                if (Entries[i].FileOffset >= File.FileOffset && Entries[i].FileOffset < NextOffset)
+                {
+                    NextOffset = Entries[i].FileOffset;
                 }
             }
 
-            if (IsLastFile)
+            if (NextOffset < GCMStream.Length)
             {
-                return GCMStream.Length - File.FileOffset;
+                long AvailableSize = NextOffset - File.FileOffset;
+
+                if (NewFileSize <= AvailableSize)
+                {
+                    return File.FileOffset;
+                }
             }
 
-            return Size;
+            // Check all data which is available
+            long AlignedFileSize = NewFileSize;
+
+            while (AlignedFileSize % FileAlignment != 0)
+            {
+                AlignedFileSize++;
+            }
+
+            // <Offset, size>
+            List<KeyValuePair<long, long>> AvailableRegions = new List<KeyValuePair<long, long>>();
+            long FileStart = Header.UnknownOffset; // Is this how it works?
+
+            AvailableRegions.Add(new KeyValuePair<long, long>(FileStart, GCMStream.Length - FileStart));
+
+            // We assume no file data is overlapping (which it shouldn't)
+            for (int i = 0; i < Entries.Count; i++)
+            {
+                if (Entries[i].IsDirectory || File == Entries[i] || Entries[i].FileSize == 0)
+                {
+                    continue;
+                }
+
+                // Find and split region
+                int Index = AvailableRegions.FindIndex((x) => Entries[i].FileOffset >= x.Key && Entries[i].FileOffset < x.Key + x.Value);
+
+                // Index should always be valid
+                KeyValuePair<long, long> Region = AvailableRegions[Index];
+                AvailableRegions.RemoveAt(Index);
+
+                long RegionEnd = Region.Key + Region.Value;
+                long FileEnd = Entries[i].FileOffset + Entries[i].FileSize;
+
+                KeyValuePair<long, long> SubRegionA = new KeyValuePair<long, long>(Region.Key, Entries[i].FileOffset);
+                KeyValuePair<long, long> SubRegionB = new KeyValuePair<long, long>(RegionEnd - Entries[i].FileOffset, RegionEnd - FileEnd);
+
+                if (SubRegionA.Value >= FileAlignment)
+                {
+                    AvailableRegions.Add(SubRegionA);
+                }
+
+                if (SubRegionB.Value >= FileAlignment)
+                {
+                    AvailableRegions.Add(SubRegionB);
+                }
+            }
+
+            // Find available
+            int AvailableIndex = AvailableRegions.FindIndex((x) => x.Value >= AlignedFileSize);
+
+            if (AvailableIndex == -1)
+            {
+                return -1;
+            }
+            else
+            {
+                return AvailableRegions[AvailableIndex].Key;
+            }
+        }
+
+        public long GetFirstFileOffset()
+        {
+            long Offset = long.MaxValue;
+
+            for (int i = 0; i < Entries.Count; i++)
+            {
+                if (!Entries[i].IsDirectory)
+                {
+                    Offset = Math.Min(Offset, Entries[i].FileOffset);
+                }
+            }
+
+            return Offset;
+        }
+        public long GetLastFileOffset()
+        {
+            long Offset = long.MinValue;
+
+            for (int i = 0; i < Entries.Count; i++)
+            {
+                if (!Entries[i].IsDirectory)
+                {
+                    Offset = Math.Max(Offset, Entries[i].FileOffset);
+                }
+            }
+
+            return Offset;
         }
     }
 }

@@ -25,6 +25,9 @@ namespace Editor.Format
             FileSystemOffset = Reader.ReadUInt32();
             FileSystemSize = Reader.ReadUInt32();
             FileSystemMaxSize = Reader.ReadUInt32();
+            UnknownAddress = Reader.ReadUInt32();
+            UnknownOffset = Reader.ReadUInt32();
+            UnknownOffset2 = Reader.ReadUInt32();
         }
 
         public string GameID { get; set; }
@@ -44,5 +47,8 @@ namespace Editor.Format
         public uint FileSystemOffset { get; set; }
         public uint FileSystemSize { get; set; }
         public uint FileSystemMaxSize { get; set; }
+        public uint UnknownAddress { get; set; }
+        public uint UnknownOffset { get; set; }
+        public uint UnknownOffset2 { get; set; }
     }
 }

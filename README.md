@@ -1,2 +1,2 @@
-# GCM-Editor
-Editor for Windows which can export and replace files inside GameCube disc files (GCM).
+# GCM Editor
+Editor for Windows which can export and replace files inside GameCube disc files (GCM). This has only been tested on Mario Kart: Double Dash!!, please use on your own risk. Due to lack of documentation it is unknown exactly how the format works.
