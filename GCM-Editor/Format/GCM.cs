@@ -1,5 +1,6 @@
 ﻿using Editor.IO;
 using Editor.Nodes;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -11,6 +12,9 @@ namespace Editor.Format
     {
         public Header Header { get; set; }
         public List<DirectoryEntry> Entries { get; set; }
+
+        public const uint FileSize = 0x57058000;
+        public const uint FileAlignment = 0x80;
 
         public GCM(Stream Stream)
         {
@@ -69,6 +73,33 @@ namespace Editor.Format
                     Parent.Nodes.Add(new FileNode(Entry));
                 }
             }
+        }
+
+        public long AvailableSizeOfFile(DirectoryEntry File, Stream GCMStream)
+        {
+            long Size = long.MaxValue;
+            bool IsLastFile = true;
+
+            for (int i = 0; i < Entries.Count; i++)
+            {
+                if (!Entries[i].IsDirectory && Entries[i] != File && Entries[i].FileOffset >= File.FileOffset)
+                {
+                    if (File.FileOffset == Entries[i].FileOffset)
+                    {
+                        // Special case which is currently not handled
+                        throw new NotImplementedException();
+                    }
+
+                    IsLastFile = false;
+                }
+            }
+
+            if (IsLastFile)
+            {
+                return GCMStream.Length - File.FileOffset;
+            }
+
+            return Size;
         }
     }
 }
