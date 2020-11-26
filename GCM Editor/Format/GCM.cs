@@ -179,7 +179,6 @@ namespace Editor.Format
                 AlignedFileSize++;
             }
 
-            // <Offset, size>
             List<OffsetSizePair> AvailableRegions = new List<OffsetSizePair>();
             long FileDataStart = Header.FileDataStartOffset; // Is this how it works?
 
