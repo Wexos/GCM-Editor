@@ -33,15 +33,16 @@ namespace Editor
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.recentFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView1 = new System.Windows.Forms.TreeView();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.cmsFile = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.cmsFolder = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.exportFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.replaceFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.cmsFolder = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.exportFolderToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -68,6 +69,7 @@ namespace Editor
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
+            this.recentFilesToolStripMenuItem,
             this.closeToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -77,21 +79,27 @@ namespace Editor
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
+            // 
+            // recentFilesToolStripMenuItem
+            // 
+            this.recentFilesToolStripMenuItem.Name = "recentFilesToolStripMenuItem";
+            this.recentFilesToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.recentFilesToolStripMenuItem.Text = "Recent Files";
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -99,7 +107,7 @@ namespace Editor
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 24);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(2);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -118,7 +126,7 @@ namespace Editor
             // 
             this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeView1.Location = new System.Drawing.Point(0, 0);
-            this.treeView1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.treeView1.Margin = new System.Windows.Forms.Padding(2);
             this.treeView1.Name = "treeView1";
             this.treeView1.Size = new System.Drawing.Size(274, 411);
             this.treeView1.TabIndex = 0;
@@ -129,7 +137,7 @@ namespace Editor
             // 
             this.propertyGrid1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
-            this.propertyGrid1.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.propertyGrid1.Margin = new System.Windows.Forms.Padding(2);
             this.propertyGrid1.Name = "propertyGrid1";
             this.propertyGrid1.Size = new System.Drawing.Size(426, 411);
             this.propertyGrid1.TabIndex = 0;
@@ -142,45 +150,48 @@ namespace Editor
             this.cmsFile.Name = "cmsFile";
             this.cmsFile.Size = new System.Drawing.Size(116, 48);
             // 
-            // cmsFolder
-            // 
-            this.cmsFolder.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exportFolderToolStripMenuItem1});
-            this.cmsFolder.Name = "cmsFolder";
-            this.cmsFolder.Size = new System.Drawing.Size(181, 48);
-            // 
             // exportFileToolStripMenuItem
             // 
             this.exportFileToolStripMenuItem.Name = "exportFileToolStripMenuItem";
-            this.exportFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exportFileToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
             this.exportFileToolStripMenuItem.Text = "Export";
             this.exportFileToolStripMenuItem.Click += new System.EventHandler(this.exportFileToolStripMenuItem_Click);
             // 
             // replaceFileToolStripMenuItem
             // 
             this.replaceFileToolStripMenuItem.Name = "replaceFileToolStripMenuItem";
-            this.replaceFileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.replaceFileToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
             this.replaceFileToolStripMenuItem.Text = "Replace";
             this.replaceFileToolStripMenuItem.Click += new System.EventHandler(this.replaceFileToolStripMenuItem_Click);
+            // 
+            // cmsFolder
+            // 
+            this.cmsFolder.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exportFolderToolStripMenuItem1});
+            this.cmsFolder.Name = "cmsFolder";
+            this.cmsFolder.Size = new System.Drawing.Size(109, 26);
             // 
             // exportFolderToolStripMenuItem1
             // 
             this.exportFolderToolStripMenuItem1.Name = "exportFolderToolStripMenuItem1";
-            this.exportFolderToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.exportFolderToolStripMenuItem1.Size = new System.Drawing.Size(108, 22);
             this.exportFolderToolStripMenuItem1.Text = "Export";
-            this.exportFolderToolStripMenuItem1.Click += new System.EventHandler(this.exportFolderToolStripMenuItem1_Click);
+            this.exportFolderToolStripMenuItem1.Click += new System.EventHandler(this.exportFolderToolStripMenuItem_Click);
             // 
             // Form1
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(703, 435);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "GCM Editor";
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.Form1_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.Form1_DragEnter);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -209,6 +220,7 @@ namespace Editor
         private System.Windows.Forms.ToolStripMenuItem replaceFileToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip cmsFolder;
         private System.Windows.Forms.ToolStripMenuItem exportFolderToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem recentFilesToolStripMenuItem;
     }
 }
 

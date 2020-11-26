@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GCM-Editor")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("GCM Editor")]
+[assembly: AssemblyDescription("Exports and replaces files inside a GCM file.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("GCM-Editor")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCompany("Wexos")]
+[assembly: AssemblyProduct("GCM Editor")]
+[assembly: AssemblyCopyright("Copyright © Wexos 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

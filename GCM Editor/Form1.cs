@@ -2,6 +2,7 @@
 using Editor.Nodes;
 using Editor.Properties;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 
@@ -40,19 +41,7 @@ namespace Editor
                 return;
             }
 
-            GCMFilePath = o.FileName;
-
-            using (Stream GCMStream = OpenGCMStream())
-            {
-                GCM = new GCM(GCMStream);
-            }
-
-            GCMNode Root = GCM.CreateTreeNode(o.FileName);
-
-            treeView1.Nodes.Clear();
-            treeView1.Nodes.Add(Root);
-
-            SetContextMenuStrip(Root);
+            OpenGCM(o.FileName);
         }
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -86,6 +75,32 @@ namespace Editor
             if (e.Button == MouseButtons.Right)
             {
                 treeView1.SelectedNode = e.Node;
+            }
+        }
+
+        private void Form1_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetData(DataFormats.FileDrop, false) is IList<string> FileDrops)
+            {
+                for (int i = 0; i < FileDrops.Count; i++)
+                {
+                    if (File.Exists(FileDrops[i]))
+                    {
+                        OpenGCM(FileDrops[i]);
+                        break;
+                    }
+                }
+            }
+        }
+        private void Form1_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effect = DragDropEffects.None;
             }
         }
 
@@ -136,7 +151,7 @@ namespace Editor
             }
         }
 
-        private void exportFolderToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void exportFolderToolStripMenuItem_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog f = new FolderBrowserDialog();
 
@@ -171,6 +186,26 @@ namespace Editor
             }
         }
 
+        private void OpenGCM(string FileName)
+        {
+            GCMFilePath = FileName;
+
+            using (Stream GCMStream = OpenGCMStream())
+            {
+                GCM = new GCM(GCMStream);
+            }
+
+            GCMNode Root = GCM.CreateTreeNode(FileName);
+
+            treeView1.Nodes.Clear();
+            treeView1.Nodes.Add(Root);
+
+            SetContextMenuStrip(Root);
+        }
+        private FileStream OpenGCMStream()
+        {
+            return File.Open(GCMFilePath, FileMode.Open, FileAccess.ReadWrite);
+        }
         private void SetContextMenuStrip(TreeNode t)
         {
             switch (t)
@@ -190,10 +225,6 @@ namespace Editor
             {
                 SetContextMenuStrip(t.Nodes[i]);
             }
-        }
-        private FileStream OpenGCMStream()
-        {
-            return File.Open(GCMFilePath, FileMode.Open, FileAccess.ReadWrite);
         }
     }
 }
