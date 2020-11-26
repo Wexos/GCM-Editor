@@ -13,6 +13,8 @@ namespace Editor
         private GCM GCM;
         private string GCMFilePath;
 
+        private RecentFileList RecentFileList;
+
         public Form1()
         {
             InitializeComponent();
@@ -20,6 +22,7 @@ namespace Editor
             IntPtr ImagePtr = Resources.Archive.GetHicon();
             Icon = System.Drawing.Icon.FromHandle(ImagePtr);
 
+            // Image list
             ImageList ImageList = new ImageList();
 
             ImageList.Images.Add(Resources.Archive);
@@ -27,6 +30,18 @@ namespace Editor
             ImageList.Images.Add(Resources.CommonFile);
 
             treeView1.ImageList = ImageList;
+
+            // Recent files
+            RecentFileList = new RecentFileList();
+            RecentFileList.LoadFromDisk();
+
+            for (int i = 0; i < RecentFileList.Files.Count; i++)
+            {
+                ToolStripMenuItem Item = new ToolStripMenuItem(RecentFileList.Files[i]);
+                Item.Click += recentFile_Click;
+
+                recentFilesToolStripMenuItem.DropDownItems.Add(Item);
+            }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -42,6 +57,18 @@ namespace Editor
             }
 
             OpenGCM(o.FileName);
+        }
+        private void recentFile_Click(object sender, EventArgs e)
+        {
+            string FileName = ((ToolStripItem)sender).Text;
+
+            if (!File.Exists(FileName))
+            {
+                MessageBox.Show("File not found. It has either been moved or deleted.", "GCM", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            OpenGCM(FileName);
         }
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -190,11 +217,17 @@ namespace Editor
         {
             GCMFilePath = FileName;
 
+            // Read file
             using (Stream GCMStream = OpenGCMStream())
             {
                 GCM = new GCM(GCMStream);
             }
 
+            // Add to recent file list
+            RecentFileList.AddFile(FileName);
+            RecentFileList.SaveToDisk();
+
+            // Create tree nodes
             GCMNode Root = GCM.CreateTreeNode(FileName);
 
             treeView1.Nodes.Clear();
