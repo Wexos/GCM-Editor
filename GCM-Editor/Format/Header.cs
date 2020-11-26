@@ -26,7 +26,7 @@ namespace Editor.Format
             FileSystemSize = Reader.ReadUInt32();
             FileSystemMaxSize = Reader.ReadUInt32();
             UnknownAddress = Reader.ReadUInt32();
-            UnknownOffset = Reader.ReadUInt32();
+            FileDataStartOffset = Reader.ReadUInt32();
             UnknownOffset2 = Reader.ReadUInt32();
         }
 
@@ -48,7 +48,7 @@ namespace Editor.Format
         public uint FileSystemSize { get; set; }
         public uint FileSystemMaxSize { get; set; }
         public uint UnknownAddress { get; set; }
-        public uint UnknownOffset { get; set; }
+        public uint FileDataStartOffset { get; set; }
         public uint UnknownOffset2 { get; set; }
     }
 }

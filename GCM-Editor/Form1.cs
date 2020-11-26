@@ -10,7 +10,7 @@ namespace Editor
     public partial class Form1 : Form
     {
         private GCM GCM;
-        private FileStream GCMStream;
+        private string GCMFilePath;
 
         public Form1()
         {
@@ -40,8 +40,12 @@ namespace Editor
                 return;
             }
 
-            GCMStream = File.Open(o.FileName, FileMode.Open, FileAccess.ReadWrite);
-            GCM = new GCM(GCMStream);
+            GCMFilePath = o.FileName;
+
+            using (Stream GCMStream = OpenGCMStream())
+            {
+                GCM = new GCM(GCMStream);
+            }
 
             GCMNode Root = GCM.CreateTreeNode(o.FileName);
 
@@ -53,20 +57,13 @@ namespace Editor
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             GCM = null;
-
-            GCMStream.Close();
-            GCMStream = null;
+            GCMFilePath = null;
 
             treeView1.Nodes.Clear();
         }
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
-        }
-
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            GCMStream?.Dispose();
         }
 
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
@@ -107,7 +104,8 @@ namespace Editor
                 return;
             }
 
-            using (FileStream Output = File.Open(s.FileName, FileMode.Create, FileAccess.Write))
+            using (FileStream Output = File.Open(s.FileName, FileMode.Create, FileAccess.Write),
+                GCMStream = OpenGCMStream())
             {
                 GCM.ExportFile(Node.Entry, GCMStream, Output);
             }
@@ -127,9 +125,14 @@ namespace Editor
                 return;
             }
 
-            using (FileStream Input = File.Open(o.FileName, FileMode.Open, FileAccess.Read))
-            {
+            byte[] Data = File.ReadAllBytes(o.FileName);
 
+            using (FileStream GCMStream = OpenGCMStream())
+            {
+                if (!GCM.ReplaceFile(Node.Entry, GCMStream, Data))
+                {
+                    MessageBox.Show("No space was fonud.", "GCM", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -142,26 +145,29 @@ namespace Editor
                 return;
             }
 
-            if (treeView1.SelectedNode is GCMNode GCMNode)
+            using (FileStream GCMStream = OpenGCMStream())
             {
-                for (int i = 0; i < GCMNode.Nodes.Count; i++)
+                if (treeView1.SelectedNode is GCMNode GCMNode)
                 {
-                    if (GCMNode.Nodes[i] is FolderNode FolderNode)
+                    for (int i = 0; i < GCMNode.Nodes.Count; i++)
                     {
-                        GCM.ExportDirectory(FolderNode, GCMStream, Path.Combine(f.SelectedPath, FolderNode.Entry.Name));
-                    }
-                    else if (GCMNode.Nodes[i] is FileNode FileNode)
-                    {
-                        using (FileStream Output = File.Open(Path.Combine(f.SelectedPath, FileNode.Entry.Name), FileMode.Create, FileAccess.Write))
+                        if (GCMNode.Nodes[i] is FolderNode FolderNode)
                         {
-                            GCM.ExportFile(FileNode.Entry, GCMStream, Output);
+                            GCM.ExportDirectory(FolderNode, GCMStream, Path.Combine(f.SelectedPath, FolderNode.Entry.Name));
+                        }
+                        else if (GCMNode.Nodes[i] is FileNode FileNode)
+                        {
+                            using (FileStream Output = File.Open(Path.Combine(f.SelectedPath, FileNode.Entry.Name), FileMode.Create, FileAccess.Write))
+                            {
+                                GCM.ExportFile(FileNode.Entry, GCMStream, Output);
+                            }
                         }
                     }
                 }
-            }
-            else if (treeView1.SelectedNode is FolderNode FolderNode)
-            {
-                GCM.ExportDirectory(FolderNode, GCMStream, f.SelectedPath);
+                else if (treeView1.SelectedNode is FolderNode FolderNode)
+                {
+                    GCM.ExportDirectory(FolderNode, GCMStream, f.SelectedPath);
+                }
             }
         }
 
@@ -184,6 +190,10 @@ namespace Editor
             {
                 SetContextMenuStrip(t.Nodes[i]);
             }
+        }
+        private FileStream OpenGCMStream()
+        {
+            return File.Open(GCMFilePath, FileMode.Open, FileAccess.ReadWrite);
         }
     }
 }

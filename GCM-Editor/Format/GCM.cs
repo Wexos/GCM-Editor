@@ -90,9 +90,29 @@ namespace Editor.Format
             byte[] Data = ReadFile(File, GCMStream);
             Output.Write(Data, 0, Data.Length);
         }
-        public void ReplaceFile(DirectoryEntry File, Stream GCMStream, byte[] FileData)
+        public bool ReplaceFile(DirectoryEntry File, Stream GCMStream, byte[] FileData)
         {
+            long Offset = GetNewOffsetOfFileData(File, GCMStream, FileData.Length);
 
+            if (Offset < 0)
+            {
+                return false;
+            }
+
+            // Write file data
+            GCMStream.Position = Offset;
+            GCMStream.Write(FileData, 0, FileData.Length);
+
+            // Change size and offset
+            File.FileOffset = (uint)Offset;
+            File.FileSize = (uint)FileData.Length;
+
+            EndianBinaryWriter Writer = new EndianBinaryWriter(GCMStream, Endianness.BigEndian);
+
+            Writer.Position = File.FileAddress;
+            File.Write(Writer);
+
+            return true;
         }
 
         public void ExportDirectory(FolderNode Folder, Stream GCMStream, string OutputFolder)
@@ -161,9 +181,9 @@ namespace Editor.Format
 
             // <Offset, size>
             List<KeyValuePair<long, long>> AvailableRegions = new List<KeyValuePair<long, long>>();
-            long FileStart = Header.UnknownOffset; // Is this how it works?
+            long FileDataStart = Header.FileDataStartOffset; // Is this how it works?
 
-            AvailableRegions.Add(new KeyValuePair<long, long>(FileStart, GCMStream.Length - FileStart));
+            AvailableRegions.Add(new KeyValuePair<long, long>(FileDataStart, GCMStream.Length - FileDataStart));
 
             // We assume no file data is overlapping (which it shouldn't)
             for (int i = 0; i < Entries.Count; i++)
@@ -183,8 +203,8 @@ namespace Editor.Format
                 long RegionEnd = Region.Key + Region.Value;
                 long FileEnd = Entries[i].FileOffset + Entries[i].FileSize;
 
-                KeyValuePair<long, long> SubRegionA = new KeyValuePair<long, long>(Region.Key, Entries[i].FileOffset);
-                KeyValuePair<long, long> SubRegionB = new KeyValuePair<long, long>(RegionEnd - Entries[i].FileOffset, RegionEnd - FileEnd);
+                KeyValuePair<long, long> SubRegionA = new KeyValuePair<long, long>(Region.Key, Entries[i].FileOffset - Region.Key);
+                KeyValuePair<long, long> SubRegionB = new KeyValuePair<long, long>(Entries[i].FileOffset, RegionEnd - Entries[i].FileOffset);
 
                 if (SubRegionA.Value >= FileAlignment)
                 {

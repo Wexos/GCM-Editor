@@ -1,4 +1,5 @@
 ﻿using Editor.IO;
+using System;
 
 namespace Editor.Format
 {
@@ -13,6 +14,14 @@ namespace Editor.Format
             NameOffset = Reader.ReadUInt24();
             Setting0 = Reader.ReadUInt32();
             Setting1 = Reader.ReadUInt32();
+        }
+        public void Write(EndianBinaryWriter Writer)
+        {
+            // Write
+            Writer.WriteByte(_IsDirectory);
+            Writer.WriteUInt24(NameOffset);
+            Writer.WriteUInt32(Setting0);
+            Writer.WriteUInt32(Setting1);
         }
 
         private byte _IsDirectory;

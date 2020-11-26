@@ -1,5 +1,4 @@
 ﻿using Editor.Format;
-using System;
 using System.ComponentModel;
 
 namespace Editor.Nodes
@@ -14,7 +13,7 @@ namespace Editor.Nodes
         }
 
         [Category("Folder")]
-        public string FileName
+        public string Name
         {
             get => Entry.Name;
         }

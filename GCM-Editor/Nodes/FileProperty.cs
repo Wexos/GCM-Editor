@@ -14,19 +14,19 @@ namespace Editor.Nodes
         }
 
         [Category("File")]
-        public string FileName
+        public string Name
         {
             get => Entry.Name;
         }
 
         [Category("File")]
-        public string FileOffset
+        public string Offset
         {
             get => $"0x{Entry.FileOffset:X8}";
         }
 
         [Category("File")]
-        public string FileSize
+        public string Size
         {
             get
             {
