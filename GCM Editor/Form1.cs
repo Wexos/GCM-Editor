@@ -171,11 +171,17 @@ namespace Editor
 
             using (FileStream GCMStream = OpenGCMStream())
             {
-                if (!GCM.ReplaceFile(Node.Entry, GCMStream, Data))
+                if (GCM.ReplaceFile(Node.Entry, GCMStream, Data))
+                {
+                    MessageBox.Show("File was successfully replaced.", "GCM", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
                 {
                     MessageBox.Show("No space was found for the file. This shouldn't really happen unless a very large file was selected.", "GCM", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+
+            RefreshPropertyGrid();
         }
 
         private void exportFolderToolStripMenuItem_Click(object sender, EventArgs e)
@@ -239,6 +245,7 @@ namespace Editor
         {
             return File.Open(GCMFilePath, FileMode.Open, FileAccess.ReadWrite);
         }
+
         private void SetContextMenuStrip(TreeNode t)
         {
             switch (t)
@@ -258,6 +265,10 @@ namespace Editor
             {
                 SetContextMenuStrip(t.Nodes[i]);
             }
+        }
+        private void RefreshPropertyGrid()
+        {
+            propertyGrid1.SelectedObject = propertyGrid1.SelectedObject;
         }
     }
 }

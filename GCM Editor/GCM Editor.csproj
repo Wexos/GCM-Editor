@@ -57,6 +57,7 @@
     <Compile Include="Format\DirectoryEntry.cs" />
     <Compile Include="Format\GCM.cs" />
     <Compile Include="Format\Header.cs" />
+    <Compile Include="Format\OffsetSizePair.cs" />
     <Compile Include="IO\EndianBinaryBase.cs" />
     <Compile Include="IO\Endianness.cs" />
     <Compile Include="IO\EndianBinaryReader.cs" />

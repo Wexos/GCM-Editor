@@ -180,10 +180,10 @@ namespace Editor.Format
             }
 
             // <Offset, size>
-            List<KeyValuePair<long, long>> AvailableRegions = new List<KeyValuePair<long, long>>();
+            List<OffsetSizePair> AvailableRegions = new List<OffsetSizePair>();
             long FileDataStart = Header.FileDataStartOffset; // Is this how it works?
 
-            AvailableRegions.Add(new KeyValuePair<long, long>(FileDataStart, GCMStream.Length - FileDataStart));
+            AvailableRegions.Add(new OffsetSizePair(FileDataStart, GCMStream.Length - FileDataStart));
 
             // We assume no file data is overlapping (which it shouldn't)
             for (int i = 0; i < Entries.Count; i++)
@@ -193,32 +193,43 @@ namespace Editor.Format
                     continue;
                 }
 
+                uint AlignedSize = Entries[i].FileSize;
+
                 // Find and split region
-                int Index = AvailableRegions.FindIndex((x) => Entries[i].FileOffset >= x.Key && Entries[i].FileOffset < x.Key + x.Value);
+                int Index = AvailableRegions.FindIndex((x) => Entries[i].FileOffset >= x.Offset && Entries[i].FileOffset < x.Offset + x.Size);
 
                 // Index should always be valid
-                KeyValuePair<long, long> Region = AvailableRegions[Index];
+                OffsetSizePair Region = AvailableRegions[Index];
                 AvailableRegions.RemoveAt(Index);
 
-                long RegionEnd = Region.Key + Region.Value;
+                long RegionEnd = Region.Offset + Region.Size;
                 long FileEnd = Entries[i].FileOffset + Entries[i].FileSize;
 
-                KeyValuePair<long, long> SubRegionA = new KeyValuePair<long, long>(Region.Key, Entries[i].FileOffset - Region.Key);
-                KeyValuePair<long, long> SubRegionB = new KeyValuePair<long, long>(Entries[i].FileOffset, RegionEnd - Entries[i].FileOffset);
-
-                if (SubRegionA.Value >= FileAlignment)
+                OffsetSizePair[] SubRegions = new OffsetSizePair[]
                 {
-                    AvailableRegions.Add(SubRegionA);
-                }
+                    new OffsetSizePair(Region.Offset, Entries[i].FileOffset - Region.Offset),
+                    new OffsetSizePair(Entries[i].FileOffset, RegionEnd - Entries[i].FileOffset)
+                };
 
-                if (SubRegionB.Value >= FileAlignment)
+                for (int j = 0; j < SubRegions.Length; j++)
                 {
-                    AvailableRegions.Add(SubRegionB);
+                    // Align
+                    while (SubRegions[j].Offset % 4 != 0)
+                    {
+                        // Increase offset => decrease size
+                        SubRegions[j].Offset++;
+                        SubRegions[j].Size--;
+                    }
+
+                    if (SubRegions[j].Size >= FileAlignment)
+                    {
+                        AvailableRegions.Add(SubRegions[j]);
+                    }
                 }
             }
 
             // Find available
-            int AvailableIndex = AvailableRegions.FindIndex((x) => x.Value >= AlignedFileSize);
+            int AvailableIndex = AvailableRegions.FindIndex((x) => x.Size >= AlignedFileSize);
 
             if (AvailableIndex == -1)
             {
@@ -226,7 +237,7 @@ namespace Editor.Format
             }
             else
             {
-                return AvailableRegions[AvailableIndex].Key;
+                return AvailableRegions[AvailableIndex].Offset;
             }
         }
 
