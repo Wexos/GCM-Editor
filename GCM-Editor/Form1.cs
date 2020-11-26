@@ -131,7 +131,7 @@ namespace Editor
             {
                 if (!GCM.ReplaceFile(Node.Entry, GCMStream, Data))
                 {
-                    MessageBox.Show("No space was fonud.", "GCM", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("No space was found for the file. This shouldn't really happen unless a very large file was selected.", "GCM", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
